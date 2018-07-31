@@ -20,7 +20,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         //
         $this->publishes([
             __DIR__.'/config/book.php' => config_path('book.php'),
-        ]);
+        ],'config');
+
+        $this->publishes([
+            __DIR__.'/migrations/' => database_path('migrations'),
+        ],'migrations');
     }
 
 
