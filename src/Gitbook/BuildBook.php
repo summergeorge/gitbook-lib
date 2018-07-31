@@ -197,8 +197,12 @@ class BuildBook extends Controller
         //格式化shell output
         $log = [];
         foreach ($output as $item){
-            if(!empty($item['output']))
+            if(empty($item['output'])){
+                $log[] = "<p><strong>".$item['command']."</strong></p>null";
+            }else{
                 $log[] = "<p><strong>".$item['command']."</strong></p>".implode("<p>",$item['output']);
+            }
+
         }
         $logs = implode("<HR>",$log);
 
