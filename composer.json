@@ -10,7 +10,6 @@
             "email": "313747791@qq.com"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Summergeorge\\GitBookLib\\": "src/"
