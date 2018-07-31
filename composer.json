@@ -1,0 +1,26 @@
+{
+    "name": "summergeorge/utils",
+    "description": "php exec shell utils",
+    "type": "library",
+    "homepage": "https://github.com/summergeorge/Utils",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "summergeorge",
+            "email": "313747791@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Summergeorge\\Utils\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Summergeorge\\GitBookLib\\ServiceProvider"
+            ]
+        }
+    }
+}
