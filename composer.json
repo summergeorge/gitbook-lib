@@ -1,8 +1,8 @@
 {
-    "name": "summergeorge/utils",
-    "description": "php exec shell utils",
+    "name": "summergeorge/gitbooklib",
+    "description": "让laravel以更简单的方式调用gitbook生成文档",
     "type": "library",
-    "homepage": "https://github.com/summergeorge/Utils",
+    "homepage": "https://github.com/summergeorge/gitbook-lib",
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +13,7 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Summergeorge\\Utils\\": "src/"
+            "Summergeorge\\GitBookLib\\": "src/"
         }
     },
     "extra": {
