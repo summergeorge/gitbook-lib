@@ -99,6 +99,8 @@ return [
     // 是否启用中文图片名称转化（解决中文图片名无法生成pdf问题）；
     'change-zh' => env('GITBOOK_CHANGE_ZH',true),
 
+    'storage_path' => storage_path('bookTmp'),
+
     //publisher info object
     'publish_info' => [
         'id' => '',

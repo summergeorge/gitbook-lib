@@ -19,7 +19,7 @@ class ConfigBookJson extends Controller
 {
     protected $publish_info,$config;
 
-    public function analysisConfig($publish_info){
+    public function analysisConfig($publish_info,$path){
         $config = [];
         $config['title'] = $publish_info['title'];
         $config['description'] = $publish_info['description'];
@@ -86,10 +86,10 @@ class ConfigBookJson extends Controller
 //        ];
 
         // 设置首页地址
-        if(file_exists(base_path('publisher/styles/header.html'))){
-            $content = file_get_contents(base_path('publisher/styles/header.html'));
+        if(file_exists($path.'/styles/header.html')){
+            $content = file_get_contents($path.'/styles/header.html');
             $content1 = str_replace("%URL%",$base_url,$content);
-            file_put_contents(base_path('publisher/header.html'),$content1);
+            file_put_contents(storage_path($path.'/styles/header.html'),$content1);
         }
 
         return $this->setConfig($config);
@@ -159,7 +159,8 @@ class ConfigBookJson extends Controller
 
 
         $json = json_encode($baseConfig,JSON_UNESCAPED_UNICODE);
-        Storage::disk('publisher')->put('book.json', $json);
+//        file_put_contents(storage_path('publisher/book.json'),$json);
+//        Storage::disk('publisher')->put('book.json', $json);
         return $json;
     }
 
@@ -174,6 +175,6 @@ class ConfigBookJson extends Controller
 
 
         $json = json_encode($baseConfig,JSON_UNESCAPED_UNICODE);
-        Storage::disk('publisher')->put('pdf.json', $json);
+//        file_put_contents($path."/pdf.json",$json);
     }
 }

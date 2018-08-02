@@ -25,6 +25,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->publishes([
             __DIR__.'/migrations/' => database_path('migrations'),
         ],'migrations');
+        $this->publishes([
+            __DIR__.'/Resources' => base_path('resources/views/vendor/gitbook')
+        ],'migrations');
     }
 
 

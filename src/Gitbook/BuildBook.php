@@ -41,6 +41,7 @@ class BuildBook extends Controller
      * @return array 返回日志
      */
     public function build(){
+        $uuid = str_random();
         $git_path = storage_path('gitbook/'.$this->publish_info['id']."/".str_random(6));
         $git_cache_path = storage_path('gitcache/'.$this->publish_info['id']);
         $path =$git_path;
@@ -63,8 +64,6 @@ class BuildBook extends Controller
 //            "git pull"
 //        ];
 //        $this->Runner($commandUpdateSelf);
-
-
 
         $commands = [];
 
@@ -100,31 +99,56 @@ class BuildBook extends Controller
             ];
         }
 
+        $commands[] =  [
+            "\cp -Rv ".base_path('resources/views/vendor/gitbook')."/* $path",
+        ];
 
+        $output = [];
+        try{
+            chdir(base_path());
+            Log::info("getcwd:".getcwd());
+            foreach ($commands as $command){
+                $this->Runner($command,$output);
+            }
+//            $publishlog['status'] = 'success';
+//            Log::info("$uuid:build success!-".$this->publish_info['title']);
+        }catch (\Exception $exception){
+            $output[] = [
+                'command' => '',
+                'output' => $exception->getMessage()
+            ];
+            $publishlog['status'] = 'failed';
+
+//            Log::info("$uuid:build error!-".$this->publish_info['title']);
+//            Log::error($exception);
+        }
+        $command = [];
 
         //注意：当图片路径存在中文时，pdf生成会出现问题，所以要把中文名称的图片重命名
-       if($this->publish_info['change_zh']){
-           $dirUtil = new DirUtil();
-           $res = $dirUtil->ChangeZh($path);
-           Log::info($path,$res);
-       }
+        if($this->publish_info['change_zh']){
+            $dirUtil = new DirUtil();
+            $res = $dirUtil->ChangeZh($path);
+            Log::info($path,$res);
+        }
 
 
         //1. 生成book.json配置文件for web
-        $builder = new ConfigBookJson();
-        $book_json = $builder->analysisConfig($this->publish_info);
+        $builder = new ConfigBookJson($path);
+        $book_json = $builder->analysisConfig($this->publish_info,$path);
+        file_put_contents($path.'/book.json',$book_json);
 
-        $commands[] = [
-            "rm -rf $path/styles/",
-            "rm -rf $path/book.json",
-            "\cp -Rv ".base_path('publisher')."/* $path",
-            "rm -rf $path/styles/header.html",
-            "\cp -Rv ".base_path('publisher/header.html')." $path/styles/header.html",
-        ];
+//        $commands[] = [
+//            "rm -rf $path/styles/",
+//            "rm -rf $path/book.json",
+//            "\cp -Rv ".storage_path('publisher')."/* $path",
+//            "rm -rf $path/styles/header.html",
+//            "\cp -Rv ".base_path('publisher/header.html')." $path/styles/header.html",
+//        ];
 
         //2. 生成book.json配置文件for pdf
         $builder = new ConfigBookJson();
-        $builder->setPdfConfig($this->publish_info);
+        $pdf_json = $builder->setPdfConfig($this->publish_info);
+        file_put_contents($path.'/pdf.json',$pdf_json);
 
         switch (config('book.engine')){
             case "docker":
@@ -136,7 +160,7 @@ class BuildBook extends Controller
 
                 $commands[] =  [
                     "rm -rf $path/book.json",
-                    "\cp -Rv ".base_path('publisher')."/pdf.json $path/book.json",
+                    "\cp -Rv $path/pdf.json $path/book.json",
                     "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook pdf",
                 ];
 
@@ -150,7 +174,7 @@ class BuildBook extends Controller
 
                 $commands[] =  [
                     "rm -rf $path/book.json",
-                    "\cp -Rv ".base_path('publisher')."/pdf.json $path/book.json",
+                    "\cp -Rv $path/pdf.json $path/book.json",
                     "cd $path && gitbook pdf",
                 ];
                 break;
@@ -167,13 +191,13 @@ class BuildBook extends Controller
         ];
 //        $this->Runner($commands);
 //     执行
-        $uuid = str_random();
+//        $uuid = str_random();
         Log::info("$uuid:build start-".$this->publish_info['title']);
         $publishlog = [
             'pid' => $this->publish_info['id'],
             'book_json' => $book_json,
         ];
-        $output = [];
+//        $output = [];
         try{
             chdir(base_path());
             Log::info("getcwd:".getcwd());
