@@ -42,6 +42,7 @@ class BuildBook extends Controller
      */
     public function build(){
         $uuid = str_random();
+        Log::info("$uuid:build start-".$this->publish_info['title']);
         $git_path = storage_path('gitbook/'.$this->publish_info['id']."/".str_random(6));
         $git_cache_path = storage_path('gitcache/'.$this->publish_info['id']);
         $path =$git_path;
@@ -122,7 +123,7 @@ class BuildBook extends Controller
 //            Log::info("$uuid:build error!-".$this->publish_info['title']);
 //            Log::error($exception);
         }
-        $command = [];
+        $commands = [];
 
         //注意：当图片路径存在中文时，pdf生成会出现问题，所以要把中文名称的图片重命名
         if($this->publish_info['change_zh']){
@@ -167,7 +168,7 @@ class BuildBook extends Controller
             ];
             $publishlog['status'] = 'failed';
         }
-        $command = [];
+        $commands = [];
         
          //2. 生成book.json配置文件for pdf
         $pdf_json = $builder->setPdfConfig($this->publish_info);
@@ -200,7 +201,7 @@ class BuildBook extends Controller
 //        $this->Runner($commands);
 //     执行
 //        $uuid = str_random();
-        Log::info("$uuid:build start-".$this->publish_info['title']);
+
         $publishlog = [
             'pid' => $this->publish_info['id'],
             'book_json' => $book_json,
