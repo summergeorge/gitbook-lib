@@ -89,7 +89,7 @@ class ConfigBookJson extends Controller
         if(file_exists($path.'/styles/header.html')){
             $content = file_get_contents($path.'/styles/header.html');
             $content1 = str_replace("%URL%",$base_url,$content);
-            file_put_contents(storage_path($path.'/styles/header.html'),$content1);
+            file_put_contents($path.'/styles/header.html',$content1);
         }
 
         return $this->setConfig($config);
