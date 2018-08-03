@@ -146,7 +146,7 @@ class BuildBook extends Controller
 //        ];
 
         //2. 生成book.json配置文件for pdf
-        $builder = new ConfigBookJson();
+        // $builder = new ConfigBookJson();
         $pdf_json = $builder->setPdfConfig($this->publish_info);
         file_put_contents($path.'/pdf.json',$pdf_json);
 
