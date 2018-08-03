@@ -133,7 +133,7 @@ class BuildBook extends Controller
 
 
         //1. 生成book.json配置文件for web
-        $builder = new ConfigBookJson($path);
+        $builder = new ConfigBookJson();
         $book_json = $builder->analysisConfig($this->publish_info,$path);
         file_put_contents($path.'/book.json',$book_json);
 
