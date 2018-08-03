@@ -175,6 +175,7 @@ class ConfigBookJson extends Controller
 
 
         $json = json_encode($baseConfig,JSON_UNESCAPED_UNICODE);
+        return $json;
 //        file_put_contents($path."/pdf.json",$json);
     }
 }
