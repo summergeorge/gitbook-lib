@@ -137,44 +137,52 @@ class BuildBook extends Controller
         $book_json = $builder->analysisConfig($this->publish_info,$path);
         file_put_contents($path.'/book.json',$book_json);
 
-//        $commands[] = [
-//            "rm -rf $path/styles/",
-//            "rm -rf $path/book.json",
-//            "\cp -Rv ".storage_path('publisher')."/* $path",
-//            "rm -rf $path/styles/header.html",
-//            "\cp -Rv ".base_path('publisher/header.html')." $path/styles/header.html",
-//        ];
-
-        //2. 生成book.json配置文件for pdf
-        // $builder = new ConfigBookJson();
-        $pdf_json = $builder->setPdfConfig($this->publish_info);
-        file_put_contents($path.'/pdf.json',$pdf_json);
-
         switch (config('book.engine')){
             case "docker":
                 // 执行build docker
                 $commands[] =  [
                     "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook install",
                     "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook build",
-                ];
-
-                $commands[] =  [
-                    "rm -rf $path/book.json",
-                    "\cp -Rv $path/pdf.json $path/book.json",
-                    "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook pdf",
-                ];
-
+                ];   
                 break;
             case "shell":
                 // 执行build shell
                 $commands[] =  [
                     "cd $path && gitbook install",
                     "cd $path && gitbook build",
+                ]; 
+                break;
+        }
+
+        try{
+            chdir(base_path());
+            Log::info("getcwd:".getcwd());
+            foreach ($commands as $command){
+                $this->Runner($command,$output);
+            }
+        }catch (\Exception $exception){
+            $output[] = [
+                'command' => '',
+                'output' => $exception->getMessage()
+            ];
+            $publishlog['status'] = 'failed';
+        }
+        $command = [];
+        
+         //2. 生成book.json配置文件for pdf
+        $pdf_json = $builder->setPdfConfig($this->publish_info);
+        file_put_contents($path.'/book.json',$pdf_json);
+
+        switch (config('book.engine')){
+            case "docker":               
+                $commands[] =  [                 
+                    "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook pdf",
                 ];
 
-                $commands[] =  [
-                    "rm -rf $path/book.json",
-                    "\cp -Rv $path/pdf.json $path/book.json",
+                break;
+            case "shell":               
+
+                $commands[] =  [                   
                     "cd $path && gitbook pdf",
                 ];
                 break;
