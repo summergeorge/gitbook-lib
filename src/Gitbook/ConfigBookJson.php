@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\PublishInfoModel;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
 
 
 class ConfigBookJson extends Controller
