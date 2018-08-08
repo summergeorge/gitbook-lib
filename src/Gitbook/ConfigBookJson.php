@@ -131,13 +131,13 @@ class ConfigBookJson extends Controller
     public function makeCustomFile($path,$publishInfo){
         $base_url = str_finish(config('book.base_url'),'/');
         // 设置首页地址
-        if(file_exists(resource_path('views/vendor/gitbook/styles/header.blade.php'))){
+        if(View::exists('vendor.gitbook.styles.header')){
             $content = View::make('vendor.gitbook.styles.header',['base_url' => $base_url]);
             file_put_contents(str_finish($path,'/').'styles/header.html',$content);
         }
 
         // 设置footer
-        if(file_exists(resource_path('views/vendor/gitbook/styles/footer.blade.php'))){
+        if(View::exists('vendor.gitbook.styles.footer')){
             $content = View::make('vendor.gitbook.styles.footer',['base_url' => $base_url]);
             file_put_contents(str_finish($path,'/').'styles/footer.html',$content);
         }
