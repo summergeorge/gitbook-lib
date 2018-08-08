@@ -100,9 +100,9 @@ class BuildBook extends Controller
             ];
         }
 
-        $commands[] =  [
-            "\cp -Rv ".base_path('resources/views/vendor/gitbook')."/* $path",
-        ];
+        // $commands[] =  [
+        //     "\cp -Rv ".base_path('resources/views/vendor/gitbook')."/* $path",
+        // ];
 
         $output = [];
         try{

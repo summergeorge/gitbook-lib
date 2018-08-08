@@ -86,11 +86,13 @@ class ConfigBookJson extends Controller
 //        ];
 
         // 设置首页地址
-        if(file_exists($path.'/styles/header.html')){
-            $content = file_get_contents($path.'/styles/header.html');
-            $content1 = str_replace("%URL%",$base_url,$content);
-            file_put_contents($path.'/styles/header.html',$content1);
-        }
+        // if(file_exists($path.'/styles/header.html')){
+        //     $content = file_get_contents($path.'/styles/header.html');
+        //     $content1 = str_replace("%URL%",$base_url,$content);
+        //     file_put_contents($path.'/styles/header.html',$content1);
+        // }
+        //设置header等信息
+        $this->makeCustomFile($path,$publish_info);
 
         return $this->setConfig($config);
 
@@ -116,6 +118,34 @@ class ConfigBookJson extends Controller
             'options' => $option
         ];
         return serialize($config);
+    }
+
+    /**
+     * 生成gitbook header footer 等自定义的html
+     *
+     * @param $path
+     * @param $publishInfo
+     * @return bool
+     */
+    public function makeCustomFile($path,$publishInfo){
+        $base_url = str_finish(config('book.base_url'),'/');
+        // 设置首页地址
+        if(file_exists(resource_path('views/vendor/gitbook/styles/header.blade.php'))){
+            $content = View::make('vendor.gitbook.styles.header',['base_url' => $base_url]);
+            file_put_contents(str_finish($path,'/').'styles/header.html',$content);
+        }
+
+        // 设置footer
+        if(file_exists(resource_path('views/vendor/gitbook/styles/footer.blade.php'))){
+            $content = View::make('vendor.gitbook.styles.footer',['base_url' => $base_url]);
+            file_put_contents(str_finish($path,'/').'styles/footer.html',$content);
+        }
+        // 设置样式
+        if(file_exists(resource_path('views/vendor/gitbook/styles/website.css'))){
+            $content = file_get_contents(resource_path('views/vendor/gitbook/styles/website.css'));
+            file_put_contents(str_finish($path,'/').'styles/website.css',$content);
+        }
+        return true;
     }
 
     /**

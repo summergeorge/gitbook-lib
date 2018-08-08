@@ -23,10 +23,10 @@
     .drop-sub .sub-section span {font-size: 12px;color:#999999;}
 </style>
 <div class="header">
-    <a href="%URL%" class="logo"><img src="http://www.ec-os.cn/bundles/shopexwebonex/images/logo.png" alt=""></a>
+    <a href="{{ $base_url or "#" }}" class="logo"><img src="http://www.ec-os.cn/bundles/shopexwebonex/images/logo.png" alt=""></a>
     <div class="nav-menu">
         <ul class="menu">
-            <li><a href="%URL%">首页</a></li>
+            <li><a href="{{ $base_url or "#" }}">首页</a></li>
             <!--<li class="intro">-->
                 <!--<a href="javascipt:;">产品介绍</a>-->
                 <!--<div class="drop-sub" >-->
