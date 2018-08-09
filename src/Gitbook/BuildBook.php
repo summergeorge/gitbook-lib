@@ -62,6 +62,7 @@ class BuildBook extends Controller
         if(!empty($password)){
             $git_url = str_replace("://","://$user:".urlencode($password)."@",$git_url);
         }
+        $path = rtrim($path,'/');
 
         // 更新自己
 //        $commandUpdateSelf = [
@@ -259,6 +260,7 @@ class BuildBook extends Controller
      * @return array
      */
     protected function Runner(array  $commandLine,&$output){
+        Log::info($commandLine);
         $command = implode(" && ",$commandLine);
         $res = $this->dirutil->runCommand($command);
         $output[] = [
