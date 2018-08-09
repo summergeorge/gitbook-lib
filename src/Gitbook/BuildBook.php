@@ -50,7 +50,7 @@ class BuildBook extends Controller
         //book SUMMARY路径
         $path =$git_path;
         if(isset($this->publish_info['git_path'])){
-            $path = $git_path.starts_with($this->publish_info['git_path'], '/');
+            $path = $git_path.str_start($this->publish_info['git_path'], '/');
         }
 
         $web_dir = public_path($this->publish_info['web_dir']);
