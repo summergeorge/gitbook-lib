@@ -43,12 +43,16 @@ class BuildBook extends Controller
     public function build(){
         $uuid = str_random();
         Log::info("$uuid:build start-".$this->publish_info['title']);
+        //git文件路径
         $git_path = storage_path('gitbook/'.$this->publish_info['id']."/".str_random(6));
         $git_cache_path = storage_path('gitcache/'.$this->publish_info['id']);
+
+        //book SUMMARY路径
         $path =$git_path;
         if(isset($this->publish_info['git_path'])){
             $path = $git_path.starts_with($this->publish_info['git_path'], '/');
         }
+
         $web_dir = public_path($this->publish_info['web_dir']);
         $pdf_path =$web_dir."/book.pdf";
         $branch = $this->publish_info['git_branch'];
@@ -87,15 +91,15 @@ class BuildBook extends Controller
                 ];
             }
             $commands[] = [
-                "rm -rf $path",
-                "mkdir -p $path",
-                "\cp -R $git_cache_path/* $path",
+                "rm -rf $git_path",
+                "mkdir -p $git_path",
+                "\cp -R $git_cache_path/* $git_path",
             ];
         }else{
             //准备代码
             $commands[] =  [
-                "rm -rf $path",
-                "mkdir -p $path",
+                "rm -rf $git_path",
+                "mkdir -p $git_path",
                 "git clone -b $branch $git_url $git_path --single-branch -q",
             ];
         }
