@@ -113,6 +113,8 @@ class DirUtil
 
         $output = '';
         $process = new Process($command);
+        $process->setTimeout(3600);
+        $process->setIdleTimeout(1200);
         $process->run();
 
         // executes after the command finishes

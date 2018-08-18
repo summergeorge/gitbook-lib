@@ -23,5 +23,8 @@
         }
     },
     "require": {
+    },
+    "require-dev": {
+        "symfony/process": "^4.1"
     }
 }
