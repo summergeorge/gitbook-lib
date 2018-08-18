@@ -16,7 +16,7 @@ use Summergeorge\GitBookLib\Utils\DirUtil;
 
 class BuildBook extends Controller
 {
-    protected $dirutil,$publish_info,$output;
+    protected $dirutil,$publish_info,$output,$uuid;
 
     /**
      * @var Repository
@@ -32,6 +32,7 @@ class BuildBook extends Controller
     {
         $this->dirutil = new DirUtil();
         $this->publish_info = $publish_info;
+        $this->uuid = str_random();
     }
 
     /**
@@ -40,8 +41,8 @@ class BuildBook extends Controller
      * @return array 返回日志
      */
     public function build(){
-        $uuid = str_random();
-        Log::info("$uuid:build start-".$this->publish_info['title']);
+
+        Log::info("$this->uuid:build start-".$this->publish_info['title'].'-'. $this->publish_info['git_url']);
         //git文件路径
         $git_path = storage_path('gitbook/'.$this->publish_info['id']."/".str_random(6));
         $git_cache_path = storage_path('gitcache/'.$this->publish_info['id']);
@@ -195,11 +196,14 @@ class BuildBook extends Controller
      */
     protected function Runner(array  $commands){
         try{
-            $res = $this->dirutil->runCommand($commands,$command);
-            $this->output[] = [
-                "command" => $command,
-                "output" => $res
-            ];
+            foreach ($commands as $item){
+                $res = $this->dirutil->runCommand($item,$command);
+                $this->output[] = [
+                    "command" => $command,
+                    "output" => $res
+                ];
+            }
+
             return true;
         }
         catch(\Exception $exception){
@@ -216,9 +220,11 @@ class BuildBook extends Controller
         $publishlog['pid'] =$this->publish_info['id'];
         if($status){
             $publishlog['status'] = 'success';
+            Log::info("$this->uuid:build success-".$this->publish_info['title'].'-'. $this->publish_info['git_url']);
         }
         else{
             $publishlog['status'] = 'failed';
+            Log::info("$this->uuid:build failed-".$this->publish_info['title'].'-'. $this->publish_info['git_url']);
         }
 
         foreach ($this->output as $item){
