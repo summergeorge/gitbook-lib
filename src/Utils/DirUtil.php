@@ -10,6 +10,8 @@ namespace Summergeorge\GitBookLib\Utils;
 
 
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class DirUtil
 {
@@ -99,18 +101,28 @@ class DirUtil
      * @param $command 命令
      * @return array 返回output内容
      */
-    public function runCommand($command)
+    public function runCommand($commands,&$command = null)
     {
-        $output = [];
-        $return_var = 0;
-        Log::info($command);
-        exec($command, $output, $return_var);
-        Log::info($output);
-        if($return_var > 0)
-        {
-            $msg = implode($output, "\n");
-            throw new \RuntimeException($msg);
+        if(is_array($commands)){
+            $command = implode(" && ",$commands);
+        }else if(is_string($commands)){
+            $command = $commands;
+        }else{
+            throw new \RuntimeException('Commands can not exec!');
         }
+
+        $output = '';
+        $process = new Process($command);
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output =  $process->getOutput();
+        Log::debug('command:'.$command);
+        Log::debug('output:'.$output);
         return $output;
     }
 }

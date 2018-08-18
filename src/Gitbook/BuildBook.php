@@ -16,7 +16,7 @@ use Summergeorge\GitBookLib\Utils\DirUtil;
 
 class BuildBook extends Controller
 {
-    protected $dirutil,$publish_info;
+    protected $dirutil,$publish_info,$output;
 
     /**
      * @var Repository
@@ -32,7 +32,6 @@ class BuildBook extends Controller
     {
         $this->dirutil = new DirUtil();
         $this->publish_info = $publish_info;
-//        $this->config = new config();
     }
 
     /**
@@ -109,24 +108,9 @@ class BuildBook extends Controller
             "mkdir -p $path/styles",
         ];
 
-        $output = [];
-        try{
-            chdir(base_path());
-            Log::info("getcwd:".getcwd());
-            foreach ($commands as $command){
-                $this->Runner($command,$output);
-            }
-//            $publishlog['status'] = 'success';
-//            Log::info("$uuid:build success!-".$this->publish_info['title']);
-        }catch (\Exception $exception){
-            $output[] = [
-                'command' => '',
-                'output' => $exception->getMessage()
-            ];
-            $publishlog['status'] = 'failed';
-
-//            Log::info("$uuid:build error!-".$this->publish_info['title']);
-//            Log::error($exception);
+        //执行shell
+        if(!$this->Runner($commands)){
+            return $this->getLog(false);
         }
         $commands = [];
 
@@ -140,8 +124,8 @@ class BuildBook extends Controller
 
         //1. 生成book.json配置文件for web
         $builder = new ConfigBookJson();
-        $book_json = $builder->analysisConfig($this->publish_info,$path);
-        file_put_contents($path.'/book.json',$book_json);
+        $this->publish_info['book_json'] = $builder->analysisConfig($this->publish_info,$path);
+        file_put_contents($path.'/book.json',$this->publish_info['book_json']);
 
         switch (config('book.engine')){
             case "docker":
@@ -149,46 +133,37 @@ class BuildBook extends Controller
                 $commands[] =  [
                     "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook install",
                     "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook build",
-                ];   
+                ];
                 break;
             case "shell":
                 // 执行build shell
                 $commands[] =  [
                     "cd $path && gitbook install",
                     "cd $path && gitbook build",
-                ]; 
+                ];
                 break;
         }
 
-        try{
-            chdir(base_path());
-            Log::info("getcwd:".getcwd());
-            foreach ($commands as $command){
-                $this->Runner($command,$output);
-            }
-        }catch (\Exception $exception){
-            $output[] = [
-                'command' => '',
-                'output' => $exception->getMessage()
-            ];
-            $publishlog['status'] = 'failed';
+        //执行shell
+        if(!$this->Runner($commands)){
+            return $this->getLog(false);
         }
         $commands = [];
-        
-         //2. 生成book.json配置文件for pdf
+
+        //2. 生成book.json配置文件for pdf
         $pdf_json = $builder->setPdfConfig($this->publish_info);
         file_put_contents($path.'/book.json',$pdf_json);
 
         switch (config('book.engine')){
-            case "docker":               
-                $commands[] =  [                 
+            case "docker":
+                $commands[] =  [
                     "docker run --rm -v \"$path:/gitbook\" billryan/gitbook:zh-hans gitbook pdf",
                 ];
 
                 break;
-            case "shell":               
+            case "shell":
 
-                $commands[] =  [                   
+                $commands[] =  [
                     "cd $path && gitbook pdf",
                 ];
                 break;
@@ -203,55 +178,14 @@ class BuildBook extends Controller
             "mv $path/book.pdf $pdf_path",
             "rm -rf $path",
         ];
-//        $this->Runner($commands);
-//     执行
-//        $uuid = str_random();
 
-        $publishlog = [
-            'pid' => $this->publish_info['id'],
-            'book_json' => $book_json,
-        ];
-//        $output = [];
-        try{
-            chdir(base_path());
-            Log::info("getcwd:".getcwd());
-            foreach ($commands as $command){
-                $this->Runner($command,$output);
-            }
-            $publishlog['status'] = 'success';
-            Log::info("$uuid:build success!-".$this->publish_info['title']);
-        }catch (\Exception $exception){
-            $output[] = [
-                'command' => '',
-                'output' => $exception->getMessage()
-            ];
-            $publishlog['status'] = 'failed';
 
-            Log::info("$uuid:build error!-".$this->publish_info['title']);
-            Log::error($exception);
+
+        //执行shell
+        if(!$this->Runner($commands)){
+            return $this->getLog(false);
         }
-
-
-        //格式化shell output
-        $log = [];
-        foreach ($output as $item){
-            if(empty($item['output'])){
-                $log[] = "<p><strong>".$item['command']."</strong></p>null";
-            }else{
-                $log[] = "<p><strong>".$item['command']."</strong></p>".implode("<p>",$item['output']);
-            }
-
-        }
-        $logs = implode("<HR>",$log);
-
-        //隐藏密码
-        if(!empty($password)){
-            $logs = str_replace(":$password@",":******@",$logs);
-        }
-
-        $publishlog['log'] = $logs;
-//        PublishBuildLog::create($publishlog);
-        return $publishlog;
+        return $this->getLog(true);
     }
 
 
@@ -259,14 +193,50 @@ class BuildBook extends Controller
      * @param array $commandLine
      * @return array
      */
-    protected function Runner(array  $commandLine,&$output){
-        Log::info($commandLine);
-        $command = implode(" && ",$commandLine);
-        $res = $this->dirutil->runCommand($command);
-        $output[] = [
-            "command" => $command,
-            "output" => $res
-        ];
-        return $res;
+    protected function Runner(array  $commands){
+        try{
+            $res = $this->dirutil->runCommand($commands,$command);
+            $this->output[] = [
+                "command" => $command,
+                "output" => $res
+            ];
+            return true;
+        }
+        catch(\Exception $exception){
+            $this->output[] = [
+                "command" => $command,
+                "output" => $exception->getMessage()
+            ];
+            return false;
+        }
+    }
+
+    protected function getLog(bool $status){
+        $publishlog = [];
+        $publishlog['pid'] =$this->publish_info['id'];
+        if($status){
+            $publishlog['status'] = 'success';
+        }
+        else{
+            $publishlog['status'] = 'failed';
+        }
+
+        foreach ($this->output as $item){
+            if(empty($item['output'])){
+                $log[] = "<p><strong>".$item['command']."</strong></p>null";
+            }else{
+                $log[] = "<p><strong>".$item['command']."</strong></p>".$item['output'];
+            }
+
+        }
+        $logs = implode("<HR>",$log);
+        //隐藏密码
+        if(!empty($this->publish_info['git_password'])){
+            $logs = str_replace(":".$this->publish_info['git_password']."@",":******@",$logs);
+        }
+        $publishlog['book_json'] = $this->publish_info['book_json'];
+        $publishlog['log'] = $logs;
+
+        return $publishlog;
     }
 }

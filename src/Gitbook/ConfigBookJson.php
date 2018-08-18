@@ -95,6 +95,10 @@ class ConfigBookJson extends Controller
         //设置header等信息
         $this->makeCustomFile($path,$publish_info);
 
+        //定义了book_json时，直接使用book_json
+        if(isset($publish_infonfo['book_json'])){
+            return $publish_info['book_json'];
+        }
         return $this->setConfig($config);
 
     }
