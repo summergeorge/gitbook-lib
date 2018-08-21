@@ -1,6 +1,7 @@
+[![StyleCI](https://github.styleci.io/repos/142867940/shield?branch=master)](https://github.styleci.io/repos/142867940)
+
 这是一个laravel composer包，用于实现在laravel中调用gitbook生成文档和pdf。
 
-![StyleCI](https://github.styleci.io/repos/142867940/shield?branch=master)
 
 - 该扩展需要运行在linux环境下，提供shell 和 docker（默认）执行命令的方式；
 
