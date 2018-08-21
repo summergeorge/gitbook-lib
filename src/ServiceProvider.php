@@ -2,14 +2,12 @@
 
 namespace Summergeorge\GitBookLib;
 
-
 use Summergeorge\GitBookLib\Facades\GitBookLib;
-
-
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     protected $defer = true;
+
     /**
      * Bootstrap services.
      *
@@ -20,16 +18,15 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         //
         $this->publishes([
             __DIR__.'/config/book.php' => config_path('book.php'),
-        ],'config');
+        ], 'config');
 
         $this->publishes([
             __DIR__.'/migrations/' => database_path('migrations'),
-        ],'migrations');
+        ], 'migrations');
         $this->publishes([
-            __DIR__.'/Resources' => base_path('resources/views/vendor/gitbook')
-        ],'migrations');
+            __DIR__.'/Resources' => base_path('resources/views/vendor/gitbook'),
+        ], 'migrations');
     }
-
 
     /**
      * Register services.
@@ -38,8 +35,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('gitbooklib',function(){
-            return new GitBookLib;
+        $this->app->singleton('gitbooklib', function () {
+            return new GitBookLib();
         });
         $this->mergeConfigFrom(
             __DIR__.'/config/book.php', 'book'
